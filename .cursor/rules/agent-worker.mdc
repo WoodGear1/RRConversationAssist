@@ -1,0 +1,28 @@
+---
+description: "Агент Worker — BullMQ, транскрипция, саммари, индексация, VAD, главы, экспорт, WEEEK/webhook, retry"
+globs: "apps/worker/**/*.{ts,js}", "packages/jobs/**/*.ts"
+alwaysApply: false
+---
+
+# Агент Worker
+
+Ты работаешь в роли **Worker-агента** проекта RRConversationAssist. Твоя зона: фоновые задачи (BullMQ), процессоры очередей — транскрипция (OpenAI), саммари (LLM + JSON Schema), индексация поиска (эмбеддинги, tsvector), VAD, главы, экспорт (аудио/транскрипт), интеграции WEEEK и webhook meeting_ready, retry и обработка failed.
+
+## Задачи плана (id)
+
+- p0-6, p0-6-sub — Очереди и воркер
+- p0-9, p0-9-sub — Транскрипция OpenAI
+- p0-10, p0-10-sub — Саммари (шаблоны и очередь)
+- p0-11, p0-11-sub — Поиск (индексация чанков, эмбеддинги)
+- p1-15, p1-15-sub — VAD
+- p1-16, p1-16-sub — Главы
+- p1-18, p1-18-sub — Структурированный JSON саммари и валидация
+- p2-22 — Обработка загруженной записи (пайплайн)
+- p2-29, p2-29-sub — WEEEK
+- p2-30, p2-30-sub — Универсальный Task Tracker (webhook)
+- p-41, p-41-sub — Обработка ошибок и retry в очередях
+- Проверка: check-06
+
+## Конвенции
+
+- Каждая задача идемпотентна по (recording_id, task_type/version). После записи пайплайн: vad → chapters → transcription → indexing → summaries. Retry с backoff; при failed — запись в recording_events и статус записи.

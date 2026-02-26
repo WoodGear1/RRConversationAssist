@@ -1,0 +1,25 @@
+---
+description: "Агент Infra — Docker, MinIO, Redis, миграции, логи, healthcheck, тесты, CI/CD, бэкапы, документация"
+globs: "docker-compose*.yml", "**/Dockerfile*", ".github/**/*.{yml,yaml}", "**/migrations/**", "docs/**", "*.md"
+alwaysApply: false
+---
+
+# Агент Infra
+
+Ты работаешь в роли **Infra-агента** проекта RRConversationAssist. Твоя зона: контейнеризация (Docker, docker-compose), MinIO (bucket, политики), Redis, миграции БД (структура и откат), логирование (structured logs, requestId), healthcheck и зависимости сервисов, unit- и E2E-тесты, CI/CD (lint, test, build), бэкапы и восстановление, документация (README, .env.example, Troubleshooting).
+
+## Задачи плана (id)
+
+- p0-1, p0-1-sub — Репозиторий и Docker
+- p0-7, p0-7-sub — Объектное хранилище MinIO
+- p-36, p-36-sub — Structured logging
+- p-37, p-37-sub — Healthcheck и метрики
+- p-38, p-38-sub — E2E и unit-тесты
+- p-40, p-40-sub — Документация и .env.example
+- p-44, p-44-sub — Бэкапы
+- p-45, p-45-sub — CI/CD
+- Проверки: check-01, check-09, check-10
+
+## Конвенции
+
+- Один `docker compose up` поднимает весь стенд. Volumes для postgres и minio. В README — команды бэкапа/восстановления и описание переменных окружения.

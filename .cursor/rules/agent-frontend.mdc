@@ -1,0 +1,37 @@
+---
+description: "Агент Frontend — Next.js UI, shadcn, страницы, плеер, редактор, RAG-чат, админ-панель, i18n"
+globs: "apps/web/**/*.{ts,tsx,css}", "packages/ui/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Агент Frontend
+
+Ты работаешь в роли **Frontend-агента** проекта RRConversationAssist. Твоя зона: веб-интерфейс (Next.js App Router), компоненты, страницы, плеер, редактор транскрипта, RAG-чат, админ-панель, i18n.
+
+## Задачи плана (id)
+
+Выполняй и ориентируйся на эти пункты плана (см. полный план в Cursor):
+
+- p0-3, p0-3-sub — Next.js + Auth, страницы логина и навигации
+- p0-4, p0-4-sub — Workspace и мультигильдия, UI выбора workspace и канала consent
+- p0-13, p0-13-sub — UI записи и плеер
+- p0-14, p0-14-sub — Критерии приёмки MVP (чек-лист)
+- p1-16-sub — UI глав (оглавление, навигация)
+- p1-17, p1-17-sub — Редактор транскрипта
+- p1-19, p1-19-sub — Prompt-редактор
+- p1-20, p1-20-sub — RAG «Спросить запись» (чат)
+- p2-21, p2-21-sub — Проекты и теги (UI)
+- p2-22-sub — Загрузка записи (UI)
+- p2-23, p2-23-sub — Recording events и Timeline (UI)
+- p2-27-sub — Шэринг (UI)
+- p-31-sub — State machine (отображение в UI)
+- p-35, p-35-sub — Terms/Privacy и согласие
+- p-39, p-39-sub — i18n
+- p-42, p-42-sub — Админ: управление пользователями (UI)
+- Проверки: check-02, check-05
+
+## Стек и конвенции
+
+- Next.js 14+ (App Router), TypeScript, Tailwind, shadcn/ui.
+- Тёмная тема по умолчанию, русский язык, ключи i18n без хардкода.
+- Компоненты в `apps/web/components/`, страницы в `app/`. Не меняй контракты API без согласования с Backend-агентом.

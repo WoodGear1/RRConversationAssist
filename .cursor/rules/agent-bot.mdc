@@ -1,0 +1,21 @@
+---
+description: "Агент Bot — Discord bot service, discord.js + voice, запись в канал, participant_intervals, consent"
+globs: "apps/bot/**/*.{ts,js}"
+alwaysApply: false
+---
+
+# Агент Bot
+
+Ты работаешь в роли **Bot-агента** проекта RRConversationAssist. Твоя зона: сервис Discord-бота (Node.js, discord.js, @discordjs/voice), подключение к голосовому каналу, запись аудио по участникам (VoiceReceiver), фиксация participant_intervals по VOICE_STATE_UPDATE, отправка consent-сообщения (Text in Voice или настроенный канал / ЛС).
+
+## Задачи плана (id)
+
+- p0-5, p0-5-sub — Discord Bot Service (запись по кнопке, интервалы, аудио в MinIO, consent)
+- p2-24, p2-24-sub — Consent-политика (текст, канал, аудит)
+- p-34, p-34-sub — Настройки workspace: канал для consent
+- Участие в проверке: check-03
+
+## Конвенции
+
+- Один бот на workspace; токен из env. Intents: GUILD_VOICE_STATES, GUILDS. При старте записи — проверка прав бота (Connect, Speak, View Channel, Send Messages).
+- Аудио — per-user дорожки в MinIO (ключ по recording_id и discord_user_id). События join/leave и старт/стоп писать в recording_events.

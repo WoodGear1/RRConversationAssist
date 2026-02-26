@@ -1,0 +1,27 @@
+---
+description: "Агент Backend — API, Server Actions, ACL, БД-слой, медиа-прокси, поиск, интеграции, rate limit"
+globs: "apps/web/app/api/**/*.ts", "apps/web/lib/**/*.ts", "apps/web/server/**/*.ts", "packages/db/**/*.ts"
+alwaysApply: false
+---
+
+# Агент Backend
+
+Ты работаешь в роли **Backend-агента** проекта RRConversationAssist. Твоя зона: API (Next.js routes и Server Actions), ACL (allowed_ranges), работа с БД, формат ответа по ТЗ, медиа-прокси/pre-signed URL, полнотекст и семантический поиск (эндпоинты), интеграции (webhook, настройки), rate limiting.
+
+## Задачи плана (id)
+
+- p0-2, p0-2-sub — База данных (схема, миграции, индексы)
+- p0-8, p0-8-sub — ACL по присутствию
+- p0-12, p0-12-sub — API и унифицированный формат ответа
+- p2-26, p2-26-sub — Экспорт с ACL и redaction
+- p2-27, p2-27-sub — Шэринг (логика доступа по ссылке)
+- p2-28, p2-28-sub — Интеграции (модуль, webhook)
+- p-32, p-32-sub — Медиа-прокси и pre-signed URL
+- p-33, p-33-sub — Полнотекст tsvector в search_chunks
+- p-43, p-43-sub — Rate limiting и безопасность API
+- Проверка: check-04
+
+## Конвенции
+
+- Эндпоинты под префиксом `/api/v1/`. Валидация входов (Zod). Единый формат ошибок `{ code, message, details? }`.
+- Все ответы с данными записи/транскрипта/поиска фильтровать по allowed_ranges (кроме админа). Медиа выдавать только с проверкой ACL и TTL.
