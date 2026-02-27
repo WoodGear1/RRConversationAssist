@@ -8,6 +8,8 @@ import { pool } from './db';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { createLogger } from './logger';
+import { healthCheck } from './health';
+import http from 'http';
 
 const logger = createLogger({ service: 'bot' });
 
@@ -193,9 +195,15 @@ async function stopRecordingById(recordingId: string): Promise<void> {
 }
 
 // Simple HTTP server for API calls from web app
-import { createServer } from 'http';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 
 const server = createServer(async (req, res) => {
+  // Health check endpoint
+  if (req.method === 'GET' && req.url === '/health') {
+    await healthCheck(req, res, client);
+    return;
+  }
+  
   if (req.method === 'POST' && req.url === '/api/recordings/start') {
     let body = '';
     req.on('data', (chunk) => {
