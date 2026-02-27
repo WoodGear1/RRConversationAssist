@@ -2,11 +2,15 @@ import { Job } from 'bullmq';
 import { pool } from '../db';
 import { JobData } from '@rrconversationassist/jobs';
 import { updateRecordingStatus } from '@rrconversationassist/db';
+import { createLogger } from '../logger';
+
+const logger = createLogger({ service: 'worker', processor: 'vad' });
 
 export async function processVAD(job: Job<JobData>): Promise<void> {
   const { recordingId } = job.data;
+  const jobLogger = logger.child({ jobId: job.id, recordingId });
 
-  console.log(`[VAD] Processing recording ${recordingId}`);
+  jobLogger.info('Processing VAD');
 
   try {
     // Check if recording exists and is in correct status
@@ -22,7 +26,7 @@ export async function processVAD(job: Job<JobData>): Promise<void> {
     const recording = recordingResult.rows[0];
 
     if (recording.status !== 'audio_ready') {
-      console.log(`[VAD] Recording ${recordingId} is not in audio_ready status, skipping`);
+      jobLogger.warn('Recording not in audio_ready status, skipping', { status: recording.status });
       return;
     }
 
@@ -33,7 +37,7 @@ export async function processVAD(job: Job<JobData>): Promise<void> {
     );
 
     if (existingVAD.rows.length > 0) {
-      console.log(`[VAD] VAD already processed for recording ${recordingId}, skipping`);
+      jobLogger.info('VAD already processed, skipping');
       return;
     }
 
@@ -60,13 +64,13 @@ export async function processVAD(job: Job<JobData>): Promise<void> {
       [recordingId, recording.duration_ms || 0]
     );
 
-    console.log(`[VAD] Completed for recording ${recordingId}`);
+    jobLogger.info('VAD processing completed');
   } catch (error: any) {
-    console.error(`[VAD] Error processing recording ${recordingId}:`, error);
+    jobLogger.error('VAD processing failed', { error });
     try {
       await updateRecordingStatus(pool, recordingId, 'failed', error.message);
     } catch (statusError) {
-      console.error(`[VAD] Failed to update status to failed:`, statusError);
+      jobLogger.error('Failed to update status to failed', { error: statusError });
     }
     throw error;
   }

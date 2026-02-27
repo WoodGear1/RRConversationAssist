@@ -4,15 +4,22 @@ import { NextResponse } from 'next/server';
 import { getCurrentWorkspaceId } from '@/lib/workspace';
 import { getAllowedRanges } from '@/lib/acl';
 import pool from '@/lib/db';
+import { createRequestLogger } from '@/lib/request-id';
+import { headers } from 'next/headers';
 
 export async function GET(request: Request) {
+  const requestId = headers().get('x-request-id') || crypto.randomUUID();
+  const logger = createRequestLogger(requestId);
+  
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Не авторизован' }, { status: 401 });
+    logger.warn('Unauthorized request');
+    return NextResponse.json({ error: 'Не авторизован' }, { status: 401, headers: { 'X-Request-ID': requestId } });
   }
 
   try {
+    logger.info('Fetching recordings', { userId: session.user.id });
     const workspaceId = await getCurrentWorkspaceId();
 
     if (!workspaceId) {
@@ -119,7 +126,7 @@ export async function GET(request: Request) {
     console.error('Error fetching recordings:', error);
     return NextResponse.json(
       { error: 'Ошибка при получении записей' },
-      { status: 500 }
+      { status: 500, headers: { 'X-Request-ID': requestId } }
     );
   }
 }

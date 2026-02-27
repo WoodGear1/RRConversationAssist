@@ -8,8 +8,11 @@ import { processChapters } from './processors/chapters-processor';
 import { processWebhook } from './processors/webhook-processor';
 import { pool } from './db';
 import { updateRecordingStatus } from '@rrconversationassist/db';
+import { createLogger } from './logger';
 
-console.log('🚀 Worker service starting...');
+const logger = createLogger({ service: 'worker' });
+
+logger.info('Worker service starting');
 
 // Create workers
 const vadWorker = new Worker('vad', processVAD, { connection: redis });
@@ -20,43 +23,43 @@ const chaptersWorker = new Worker('chapters', processChapters, { connection: red
 
 // Error handlers
 vadWorker.on('completed', (job) => {
-  console.log(`[VAD] Job ${job.id} completed`);
+  logger.info('VAD job completed', { jobId: job.id, recordingId: job.data.recordingId });
 });
 
 vadWorker.on('failed', (job, err) => {
-  console.error(`[VAD] Job ${job?.id} failed:`, err);
+  logger.error('VAD job failed', { jobId: job?.id, recordingId: job?.data?.recordingId, error: err });
 });
 
 transcriptionWorker.on('completed', (job) => {
-  console.log(`[Transcription] Job ${job.id} completed`);
+  logger.info('Transcription job completed', { jobId: job.id, recordingId: job.data.recordingId });
 });
 
 transcriptionWorker.on('failed', (job, err) => {
-  console.error(`[Transcription] Job ${job?.id} failed:`, err);
+  logger.error('Transcription job failed', { jobId: job?.id, recordingId: job?.data?.recordingId, error: err });
 });
 
 indexingWorker.on('completed', (job) => {
-  console.log(`[Indexing] Job ${job.id} completed`);
+  logger.info('Indexing job completed', { jobId: job.id, recordingId: job.data.recordingId });
 });
 
 indexingWorker.on('failed', (job, err) => {
-  console.error(`[Indexing] Job ${job?.id} failed:`, err);
+  logger.error('Indexing job failed', { jobId: job?.id, recordingId: job?.data?.recordingId, error: err });
 });
 
 summarizationWorker.on('completed', (job) => {
-  console.log(`[Summarization] Job ${job.id} completed`);
+  logger.info('Summarization job completed', { jobId: job.id, recordingId: job.data.recordingId });
 });
 
 summarizationWorker.on('failed', (job, err) => {
-  console.error(`[Summarization] Job ${job?.id} failed:`, err);
+  logger.error('Summarization job failed', { jobId: job?.id, recordingId: job?.data?.recordingId, error: err });
 });
 
 chaptersWorker.on('completed', (job) => {
-  console.log(`[Chapters] Job ${job.id} completed`);
+  logger.info('Chapters job completed', { jobId: job.id, recordingId: job.data.recordingId });
 });
 
 chaptersWorker.on('failed', (job, err) => {
-  console.error(`[Chapters] Job ${job?.id} failed:`, err);
+  logger.error('Chapters job failed', { jobId: job?.id, recordingId: job?.data?.recordingId, error: err });
 });
 
 // Pipeline: after recording stops, trigger VAD -> transcription -> indexing
@@ -131,7 +134,7 @@ async function checkAndMarkRecordingReady(recordingId: string): Promise<void> {
         await updateRecordingStatus(pool, recordingId, 'ready');
       } catch (error) {
         // Status might have already changed, ignore
-        console.log(`[Worker] Could not update status to ready for ${recordingId}`);
+        logger.warn('Could not update status to ready', { recordingId });
       }
 
       // Trigger webhooks
@@ -149,13 +152,13 @@ async function checkAndMarkRecordingReady(recordingId: string): Promise<void> {
       }
     }
   } catch (error) {
-    console.error(`[Worker] Error checking recording ready status:`, error);
+    logger.error('Error checking recording ready status', { recordingId, error });
   }
 }
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('🛑 Shutting down workers...');
+  logger.info('Shutting down workers');
   await vadWorker.close();
   await transcriptionWorker.close();
   await indexingWorker.close();
@@ -166,4 +169,4 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-console.log('✅ Workers started and ready');
+logger.info('Workers started and ready');

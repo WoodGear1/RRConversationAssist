@@ -7,6 +7,9 @@ import { sendConsentMessage } from './consent';
 import { pool } from './db';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
+import { createLogger } from './logger';
+
+const logger = createLogger({ service: 'bot' });
 
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 const vadQueue = new Queue('vad', { connection: redis });
@@ -14,7 +17,7 @@ const vadQueue = new Queue('vad', { connection: redis });
 async function triggerProcessingPipeline(recordingId: string): Promise<void> {
   // Add VAD job to queue
   await vadQueue.add('vad', { recordingId });
-  console.log(`Triggered processing pipeline for recording ${recordingId}`);
+  logger.info('Triggered processing pipeline', { recordingId });
 }
 
 const client = new Client({
@@ -28,7 +31,7 @@ const client = new Client({
 const activeRecordings = new Map<string, VoiceHandler>();
 
 client.once(Events.ClientReady, (readyClient) => {
-  console.log(`✅ Бот готов! Вход как ${readyClient.user.tag}`);
+  logger.info('Bot ready', { botTag: readyClient.user.tag, botId: readyClient.user.id });
   
   // Check bot permissions in guilds
   readyClient.guilds.cache.forEach(async (guild) => {
@@ -39,7 +42,7 @@ client.once(Events.ClientReady, (readyClient) => {
     const missing = required.filter(p => !permissions.has(p));
     
     if (missing.length > 0) {
-      console.warn(`⚠️ Боту не хватает прав в ${guild.name}: ${missing.join(', ')}`);
+      logger.warn('Bot missing permissions', { guildId: guild.id, guildName: guild.name, missingPermissions: missing });
     }
   });
 });
@@ -130,7 +133,7 @@ async function startRecording(
 
   // Wait for connection to be ready
   connection.on(VoiceConnectionStatus.Ready, async () => {
-    console.log(`✅ Подключен к каналу ${channelId}`);
+    logger.info('Connected to voice channel', { channelId, recordingId });
 
     // Create voice handler
     const handler = new VoiceHandler(connection, recordingId, channelId);
@@ -163,7 +166,7 @@ async function startRecording(
   });
 
   connection.on(VoiceConnectionStatus.Disconnected, async () => {
-    console.log(`⚠️ Отключен от канала ${channelId}`);
+    logger.warn('Disconnected from voice channel', { channelId, recordingId });
     
     // Stop recording
     const handler = activeRecordings.get(recordingId);
@@ -234,11 +237,11 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(3001, () => {
-  console.log('📡 HTTP сервер бота запущен на порту 3001');
+  logger.info('Bot HTTP server started', { port: 3001 });
 });
 
 // Login
 client.login(config.discord.token).catch((error) => {
-  console.error('❌ Ошибка входа бота:', error);
+  logger.error('Bot login error', { error });
   process.exit(1);
 });
