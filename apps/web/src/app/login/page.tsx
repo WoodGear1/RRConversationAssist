@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
 
   const handleDiscordLogin = () => {
     signIn('discord', { callbackUrl: '/' })
@@ -18,6 +19,12 @@ export default function LoginPage() {
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    
+    if (!acceptedTerms) {
+      setError('Необходимо принять условия использования и политику конфиденциальности')
+      return
+    }
+    
     setLoading(true)
 
     try {
@@ -98,6 +105,26 @@ export default function LoginPage() {
               />
             </div>
 
+            <div className="flex items-start gap-2">
+              <input
+                id="accept-terms"
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-input"
+              />
+              <label htmlFor="accept-terms" className="text-sm text-card-foreground">
+                Я принимаю{' '}
+                <a href="/terms" target="_blank" className="text-primary hover:underline">
+                  Условия использования
+                </a>
+                {' '}и{' '}
+                <a href="/privacy" target="_blank" className="text-primary hover:underline">
+                  Политику конфиденциальности
+                </a>
+              </label>
+            </div>
+
             {error && (
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
@@ -106,7 +133,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !acceptedTerms}
               className="w-full rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               {loading ? 'Вход...' : 'Войти'}

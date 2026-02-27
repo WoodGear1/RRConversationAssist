@@ -32,9 +32,17 @@ export async function sendConsentMessage(
 
     // Try to get channel (would need bot instance, for now return placeholder)
     // In real implementation, this would use the bot's client
+    const baseUrl = config.web?.baseUrl || process.env.WEB_BASE_URL || 'https://app.rrconversationassist.com';
+    const termsUrl = `${baseUrl}/terms`;
+    const privacyUrl = `${baseUrl}/privacy`;
+    
+    const defaultMessage = `🔴 Запись началась в голосовом канале. Инициатор: ${initiatorDisplayName}. Запись будет доступна после обработки.
+
+📋 [Условия использования](${termsUrl}) | 🔒 [Политика конфиденциальности](${privacyUrl})`;
+    
     const messageTemplate =
       guild?.consent_message_template ||
-      `🔴 Запись началась в голосовом канале. Инициатор: ${initiatorDisplayName}. Запись будет доступна после обработки.`;
+      defaultMessage;
 
     // For now, return a placeholder message ID
     // In real implementation, this would:
