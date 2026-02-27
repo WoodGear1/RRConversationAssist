@@ -10,17 +10,25 @@ export async function sendConsentMessage(
   initiatorDisplayName: string
 ): Promise<string | null> {
   try {
-    // Get guild settings for consent channel
+    // Get guild settings and workspace fallback for consent channel
     const guildResult = await pool.query(
-      `SELECT g.discord_guild_id, gs.consent_channel_id, gs.consent_message_template
+      `SELECT 
+         g.discord_guild_id, 
+         g.id as guild_db_id,
+         gs.consent_channel_id as guild_consent_channel_id, 
+         gs.consent_message_template,
+         w.consent_channel_id as workspace_consent_channel_id
        FROM guilds g
        LEFT JOIN guild_settings gs ON gs.guild_id = g.id
+       INNER JOIN workspace_guilds wg ON wg.guild_id = g.id
+       INNER JOIN workspaces w ON w.id = wg.workspace_id
        WHERE g.discord_guild_id = $1`,
       [guildId]
     );
 
     const guild = guildResult.rows[0];
-    const consentChannelId = guild?.consent_channel_id;
+    // Use guild-specific channel if set, otherwise fallback to workspace channel
+    const consentChannelId = guild?.guild_consent_channel_id || guild?.workspace_consent_channel_id;
 
     // Try to get channel (would need bot instance, for now return placeholder)
     // In real implementation, this would use the bot's client

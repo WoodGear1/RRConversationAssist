@@ -20,7 +20,7 @@ export default async function WorkspaceSettingsPage() {
 
   // Get workspace details
   const workspaceResult = await pool.query(
-    'SELECT id, name, owner_user_id FROM workspaces WHERE id = $1',
+    'SELECT id, name, owner_user_id, consent_channel_id FROM workspaces WHERE id = $1',
     [workspaceId]
   )
 
@@ -65,6 +65,50 @@ export default async function WorkspaceSettingsPage() {
             <div>
               <span className="text-sm text-muted-foreground">ID:</span>
               <p className="text-foreground font-mono text-sm">{workspace.id}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h2 className="text-xl font-semibold mb-4">Настройки по умолчанию</h2>
+          <div className="space-y-3">
+            <div>
+              <label
+                htmlFor="workspace-consent-channel"
+                className="block text-sm font-medium mb-1"
+              >
+                Канал для уведомлений о записи (fallback)
+              </label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Используется, если для гильдии не настроен отдельный канал
+              </p>
+              <div className="flex gap-2">
+                <input
+                  id="workspace-consent-channel"
+                  type="text"
+                  defaultValue={workspace.consent_channel_id || ''}
+                  placeholder="Discord Channel ID (или оставьте пустым)"
+                  className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+                  onBlur={async (e) => {
+                    const value = e.target.value.trim() || null
+                    try {
+                      const response = await fetch(`/api/workspaces/${workspaceId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ consent_channel_id: value }),
+                      })
+                      if (response.ok) {
+                        // Success
+                      } else {
+                        alert('Ошибка при сохранении')
+                      }
+                    } catch (error) {
+                      console.error('Error saving consent channel:', error)
+                      alert('Ошибка при сохранении')
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

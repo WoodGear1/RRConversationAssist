@@ -29,7 +29,7 @@ export async function GET(
 
     // Get workspace details
     const workspaceResult = await pool.query(
-      'SELECT id, name, owner_user_id, created_at, updated_at FROM workspaces WHERE id = $1',
+      'SELECT id, name, owner_user_id, consent_channel_id, created_at, updated_at FROM workspaces WHERE id = $1',
       [params.id]
     );
 
@@ -98,18 +98,43 @@ export async function PATCH(
       );
     }
 
-    const { name } = await request.json();
+    const { name, consent_channel_id } = await request.json();
 
-    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    if (name !== undefined) {
+      if (typeof name !== 'string' || name.trim().length === 0) {
+        return NextResponse.json(
+          { error: 'Название workspace обязательно' },
+          { status: 400 }
+        );
+      }
+      updates.push(`name = $${paramIndex}`);
+      values.push(name.trim());
+      paramIndex++;
+    }
+
+    if (consent_channel_id !== undefined) {
+      updates.push(`consent_channel_id = $${paramIndex}`);
+      values.push(consent_channel_id && consent_channel_id.trim() ? consent_channel_id.trim() : null);
+      paramIndex++;
+    }
+
+    if (updates.length === 0) {
       return NextResponse.json(
-        { error: 'Название workspace обязательно' },
+        { error: 'Нет полей для обновления' },
         { status: 400 }
       );
     }
 
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(params.id);
+
     const result = await pool.query(
-      'UPDATE workspaces SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, name, owner_user_id, updated_at',
-      [name.trim(), params.id]
+      `UPDATE workspaces SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING id, name, owner_user_id, consent_channel_id, updated_at`,
+      values
     );
 
     return NextResponse.json(result.rows[0]);
