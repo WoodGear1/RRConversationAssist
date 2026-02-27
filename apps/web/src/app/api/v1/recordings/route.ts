@@ -1,13 +1,20 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentWorkspaceId } from '@/lib/workspace';
 import { getAllowedRanges } from '@/lib/acl';
 import pool from '@/lib/db';
 import { createRequestLogger } from '@/lib/request-id';
 import { headers } from 'next/headers';
+import { apiRateLimit } from '@/middleware/rate-limit';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = await apiRateLimit(request);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   const requestId = headers().get('x-request-id') || crypto.randomUUID();
   const logger = createRequestLogger(requestId);
   
