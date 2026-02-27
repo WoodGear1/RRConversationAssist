@@ -263,6 +263,82 @@ npm run migrate:down
 
 [Укажите лицензию]
 
+## Бэкапы и восстановление
+
+### Бэкап PostgreSQL
+
+```bash
+# Использование скрипта бэкапа
+./scripts/backup-postgres.sh [output_dir]
+
+# Или вручную
+pg_dump -h localhost -U postgres -d rrconversationassist \
+  --format=custom \
+  --file=backup_$(date +%Y%m%d_%H%M%S).dump
+```
+
+Скрипт создает два файла:
+- `.dump` (custom format, сжатый) - для быстрого восстановления
+- `.sql.gz` (SQL format, сжатый) - для просмотра и портируемости
+
+### Восстановление PostgreSQL
+
+```bash
+# Из custom format
+./scripts/restore-postgres.sh ./backups/postgres/postgres_backup_20240101_120000.dump
+
+# Или вручную
+pg_restore -h localhost -U postgres -d rrconversationassist \
+  --clean --if-exists \
+  backup.dump
+```
+
+**Внимание:** Восстановление перезапишет существующие данные!
+
+### Бэкап MinIO
+
+```bash
+# Использование скрипта бэкапа
+./scripts/backup-minio.sh [output_dir]
+
+# Или вручную с MinIO Client
+mc alias set myminio http://localhost:9000 minioadmin minioadmin
+mc mirror myminio/recordings ./backups/minio/recordings
+tar -czf minio_backup.tar.gz ./backups/minio/recordings
+```
+
+### Восстановление MinIO
+
+```bash
+# Использование скрипта восстановления
+./scripts/restore-minio.sh ./backups/minio/minio_backup_20240101_120000.tar.gz
+
+# Или вручную
+tar -xzf minio_backup.tar.gz
+mc mirror ./backups/minio/recordings myminio/recordings
+```
+
+### Автоматизация бэкапов
+
+Рекомендуется настроить cron для автоматических бэкапов:
+
+```bash
+# Добавить в crontab (crontab -e)
+# Бэкап PostgreSQL каждый день в 2:00
+0 2 * * * /path/to/scripts/backup-postgres.sh /backups/postgres
+
+# Бэкап MinIO каждый день в 3:00
+0 3 * * * /path/to/scripts/backup-minio.sh /backups/minio
+```
+
+### Рекомендации
+
+- Храните бэкапы в отдельном месте (не на том же сервере)
+- Тестируйте восстановление регулярно
+- Храните несколько версий бэкапов (например, последние 30 дней)
+- Используйте шифрование для бэкапов с чувствительными данными
+- Мониторьте размер бэкапов и доступное место
+
 ## Поддержка
 
 [Контактная информация для поддержки]
