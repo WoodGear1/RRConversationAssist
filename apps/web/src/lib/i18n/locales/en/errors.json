@@ -1,0 +1,9 @@
+{
+  "unauthorized": "Unauthorized",
+  "forbidden": "Forbidden",
+  "not_found": "Not Found",
+  "bad_request": "Bad Request",
+  "server_error": "Internal Server Error",
+  "network_error": "Network Error",
+  "unknown_error": "Unknown Error"
+}

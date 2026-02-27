@@ -1,0 +1,30 @@
+{
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "login": "Login",
+    "logout": "Logout",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "error": "Error",
+    "success": "Success",
+    "no_data": "No data"
+  },
+  "time": {
+    "ago": "ago",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "minutes": "minutes",
+    "hours": "hours",
+    "days": "days"
+  }
+}

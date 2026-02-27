@@ -1,0 +1,9 @@
+{
+  "unauthorized": "Не авторизован",
+  "forbidden": "Нет доступа",
+  "not_found": "Не найдено",
+  "bad_request": "Неверный запрос",
+  "server_error": "Внутренняя ошибка сервера",
+  "network_error": "Ошибка сети",
+  "unknown_error": "Неизвестная ошибка"
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Search",
+  "placeholder": "Enter search query...",
+  "search_button": "Search",
+  "no_results": "No results found",
+  "results_count": "Found results: {{count}}",
+  "snippet": "Snippet",
+  "recording": "Recording",
+  "timestamp": "Timestamp"
+}

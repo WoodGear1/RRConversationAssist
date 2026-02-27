@@ -1,0 +1,44 @@
+{
+  "list": {
+    "title": "My Recordings",
+    "empty": "No recordings. Create a recording via Discord bot.",
+    "loading": "Loading recordings...",
+    "error": "Error loading recordings"
+  },
+  "player": {
+    "title": "Recording Player",
+    "play": "Play",
+    "pause": "Pause",
+    "create_summary": "Create Summary",
+    "export": "Export",
+    "ask_recording": "Ask Recording",
+    "hide_chat": "Hide Chat",
+    "transcript": "Transcript",
+    "timeline": "Timeline"
+  },
+  "status": {
+    "created": "Created",
+    "recording": "Recording",
+    "uploaded": "Uploaded",
+    "audio_ready": "Audio Ready",
+    "vad_done": "VAD Done",
+    "transcribing": "Transcribing",
+    "transcript_ready": "Transcript Ready",
+    "chapters_draft_ready": "Chapters Ready",
+    "indexing_ready": "Ready for Indexing",
+    "indexed": "Indexed",
+    "summaries_ready": "Summaries Ready",
+    "ready": "Ready",
+    "failed": "Failed"
+  },
+  "upload": {
+    "title": "Upload Recording",
+    "drag_drop": "Drag and drop file here or click to select",
+    "select_file": "Select File",
+    "file_name": "File Name",
+    "title_label": "Recording Title",
+    "uploading": "Uploading...",
+    "success": "Recording uploaded successfully",
+    "error": "Error uploading recording"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Поиск",
+  "placeholder": "Введите запрос для поиска...",
+  "search_button": "Найти",
+  "no_results": "Ничего не найдено",
+  "results_count": "Найдено результатов: {{count}}",
+  "snippet": "Фрагмент",
+  "recording": "Запись",
+  "timestamp": "Время"
+}
