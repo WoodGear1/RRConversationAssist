@@ -1,0 +1,22 @@
+{
+  "name": "@rrconversationassist/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create",
+    "test:connection": "tsx src/test-connection.ts"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "node-pg-migrate": "^6.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/pg": "^8.10.9",
+    "typescript": "^5.3.0",
+    "tsx": "^4.7.0"
+  }
+}

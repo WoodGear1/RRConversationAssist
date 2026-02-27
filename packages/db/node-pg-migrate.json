@@ -1,0 +1,5 @@
+{
+  "migrationsDirectory": "./migrations",
+  "migrationFileLanguage": "ts",
+  "migrationTemplate": "migration-template.ts"
+}
