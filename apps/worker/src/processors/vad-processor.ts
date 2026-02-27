@@ -66,12 +66,32 @@ export async function processVAD(job: Job<JobData>): Promise<void> {
 
     jobLogger.info('VAD processing completed');
   } catch (error: any) {
-    jobLogger.error('VAD processing failed', { error });
+    jobLogger.error('VAD processing failed', { 
+      error: error.message,
+      stack: error.stack,
+      recordingId 
+    });
+    
+    // Log event for retry attempts (not final failure - that's handled in worker)
     try {
-      await updateRecordingStatus(pool, recordingId, 'failed', error.message);
-    } catch (statusError) {
-      jobLogger.error('Failed to update status to failed', { error: statusError });
+      await pool.query(
+        `INSERT INTO recording_events (
+          recording_id, ts, type, payload_json
+        ) VALUES ($1, $2, $3, $4::jsonb)`,
+        [
+          recordingId,
+          Date.now(),
+          'vad_retry',
+          JSON.stringify({
+            error: error.message,
+            jobId: job.id,
+          }),
+        ]
+      );
+    } catch (eventError) {
+      jobLogger.error('Failed to log retry event', { error: eventError });
     }
-    throw error;
+    
+    throw error; // Re-throw to let BullMQ handle retry
   }
 }

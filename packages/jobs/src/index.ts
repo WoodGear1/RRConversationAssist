@@ -10,10 +10,10 @@ export function createQueue(name: string, redis: Redis, options?: Partial<QueueO
   return new Queue<JobData>(name, {
     connection: redis,
     defaultJobOptions: {
-      attempts: 3,
+      attempts: 5, // Increased attempts
       backoff: {
         type: 'exponential',
-        delay: 2000,
+        delay: 2000, // Start with 2 seconds, then 4, 8, 16, 32
       },
       removeOnComplete: {
         age: 24 * 3600, // Keep completed jobs for 24 hours

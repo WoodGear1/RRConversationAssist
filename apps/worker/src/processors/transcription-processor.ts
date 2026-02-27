@@ -4,6 +4,9 @@ import { getObject } from '../s3';
 import { config } from '../config';
 import { JobData } from '@rrconversationassist/jobs';
 import { updateRecordingStatus } from '@rrconversationassist/db';
+import { createLogger } from '../logger';
+
+const logger = createLogger({ service: 'worker', processor: 'transcription' });
 
 export async function processTranscription(job: Job<JobData>): Promise<void> {
   const { recordingId } = job.data;
@@ -139,14 +142,34 @@ export async function processTranscription(job: Job<JobData>): Promise<void> {
     [recordingId, recording.duration_ms || 0]
   );
 
-  console.log(`[Transcription] Completed for recording ${recordingId}`);
+    jobLogger.info('Transcription processing completed');
   } catch (error: any) {
-    console.error(`[Transcription] Error processing recording ${recordingId}:`, error);
+    jobLogger.error('Transcription processing failed', { 
+      error: error.message,
+      stack: error.stack,
+      recordingId 
+    });
+    
+    // Log event for retry attempts
     try {
-      await updateRecordingStatus(pool, recordingId, 'failed', error.message);
-    } catch (statusError) {
-      console.error(`[Transcription] Failed to update status to failed:`, statusError);
+      await pool.query(
+        `INSERT INTO recording_events (
+          recording_id, ts, type, payload_json
+        ) VALUES ($1, $2, $3, $4::jsonb)`,
+        [
+          recordingId,
+          Date.now(),
+          'transcription_retry',
+          JSON.stringify({
+            error: error.message,
+            jobId: job.id,
+          }),
+        ]
+      );
+    } catch (eventError) {
+      jobLogger.error('Failed to log retry event', { error: eventError });
     }
+    
     throw error;
   }
 }
